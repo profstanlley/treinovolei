@@ -11,7 +11,7 @@
         input, select { width: 100%; padding: 15px; margin: 10px 0; border-radius: 8px; border: 1px solid #333; background: #000; color: #fff; font-size: 1rem; box-sizing: border-box; outline: none; }
         button { width: 100%; padding: 16px; background: var(--amarelo); color: #000; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-transform: uppercase; margin-top: 10px; transition: 0.3s; }
         button:disabled { background: #333; color: #666; cursor: not-allowed; }
-        .btn-outline { background: transparent; color: var(--amarelo); border: 1px solid var(--amarelo); margin-top: 15px; font-size: 0.8rem; padding: 10px; cursor: pointer; border-radius: 8px; }
+        .btn-outline { background: transparent; color: var(--amarelo); border: 1px solid var(--amarelo); margin-top: 15px; font-size: 0.8rem; padding: 10px; cursor: pointer; border-radius: 8px; width: 100%; }
         .badge { background: var(--amarelo); color: #000; padding: 4px 12px; border-radius: 50px; font-size: 0.7rem; font-weight: bold; margin: 10px 0; display: inline-block; }
         .card-info { background: #000; border: 1px dashed var(--amarelo); padding: 15px; border-radius: 10px; margin: 15px 0; }
         .hidden { display: none; }
@@ -37,7 +37,8 @@
 <div id="appPage" class="container hidden">
     <h2 id="nomeAluno" style="margin: 0; color: #fff;">---</h2>
     <div id="planoExibido" class="badge">---</div>
-    <br><button onclick="alternarDiarista()" style="width:auto; font-size:0.6rem; padding:5px; background:#222; color:#fff; border: 1px solid #444; border-radius: 4px; cursor: pointer;">Mudar para Diarista</button>
+    <br>
+    <button onclick="alternarDiarista()" style="width:auto; font-size:0.6rem; padding:5px; background:#222; color:#fff; border: 1px solid #444; border-radius: 4px; cursor: pointer;">Mudar para Diarista</button>
 
     <div class="card-info">
         <span style="font-size: 0.6rem; color: #888; text-transform: uppercase;">Próximo Treino</span>
@@ -61,13 +62,13 @@
     <h3 style="margin-top: 25px; font-size: 0.8rem; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 5px;">Meus Treinos</h3>
     <div id="listaHistorico"></div>
     
-    <button class="btn-outline" style="border: none; color: #666; width: 100%;" onclick="location.reload()">Sair do Sistema</button>
+    <button class="btn-outline" style="border: none; color: #666;" onclick="location.reload()">Sair do Sistema</button>
 </div>
 
 <script>
-    // --- ATENÇÃO: COLE SUA URL DA IMPLANTAÇÃO ABAIXO ---
+    // --- COLE SUA URL DA NOVA IMPLANTAÇÃO ABAIXO ---
     const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbz1YWatewvqKyOnSajAXnrDZYF0jjDpj-odMyOI2NSX3F3xs8PFQcG9zTUJnM-6KiPHZQ/exec";
-    const LINK_FORMULARIO = "https://forms.gle/ZZvRXMgr9SYVaoUk7";
+    const LINK_FORMULARIO = "https://forms.gle/pj64rh3qXWAjiMrP9";
     let USER = null;
     let modoDiarista = false;
 
@@ -89,7 +90,7 @@
         
         try {
             const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify({ action: "login", telefone: tel, senha: senha }) });
-            const texto = await res.text(); // Lê como texto para evitar erro de CORS
+            const texto = await res.text(); 
             const json = JSON.parse(texto);
             
             if (json.result === "success") {
@@ -105,13 +106,13 @@
                 
                 verificarRegras(); carregarHistorico();
             } else { 
-                alert(json.data); btn.disabled = false; btn.innerText = "Entrar";
+                alert(json.data); btn.disabled = false; btn.innerText = "Entrar no Portal";
                 if(json.result === "not_found" && confirm("Matrícula não encontrada. Ir para o formulário?")) window.location.href = LINK_FORMULARIO;
             }
         } catch (e) { 
             console.error(e);
-            alert("Erro ao conectar com o servidor. Verifique a internet ou o link do Script."); 
-            btn.disabled = false; btn.innerText = "Entrar"; 
+            alert("Erro ao conectar. Verifique se o Script foi publicado como 'Qualquer pessoa'."); 
+            btn.disabled = false; btn.innerText = "Entrar no Portal"; 
         }
     }
 
@@ -121,7 +122,6 @@
         const hora = agora.getHours();
         let prox = new Date();
         
-        // Terça (2) ou Quinta (4)
         if (dia === 2 || dia === 4) { }
         else if (dia < 2) prox.setDate(agora.getDate() + (2 - dia));
         else if (dia < 4) prox.setDate(agora.getDate() + (4 - dia));
@@ -179,7 +179,10 @@
             const json = JSON.parse(texto);
             alert(json.data);
             if (json.result === "success") carregarHistorico();
-        } catch (e) { alert("Erro de rede. Tente novamente."); }
+        } catch (e) { 
+            console.error(e);
+            alert("Erro de rede. Tente novamente."); 
+        }
         btn.disabled = false; btn.innerText = "Confirmar Presença"; verificarRegras();
     }
 
