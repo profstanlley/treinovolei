@@ -3,29 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prof Stanlley | Vôlei de Praia | Portal</title>
+    <title>Prof Stanlley | Portal Mercúrio</title>
     <style>
-        :root { --amarelo: #FFD700; --preto: #000; --cinza: #111; --vermelho: #ff4444; }
+        :root { --amarelo: #FFD700; --preto: #000; --cinza: #111; --vermelho: #ff4d4d; }
         body { background: var(--preto); color: var(--amarelo); font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         .container { background: var(--cinza); width: 90%; max-width: 380px; padding: 30px 20px; border-radius: 20px; border: 2px solid var(--amarelo); text-align: center; }
-        input, select { width: 100%; padding: 15px; margin: 10px 0; border-radius: 8px; border: 1px solid #333; background: #000; color: #fff; font-size: 1rem; box-sizing: border-box; }
+        input, select { width: 100%; padding: 15px; margin: 10px 0; border-radius: 8px; border: 1px solid #333; background: #000; color: #fff; font-size: 1rem; box-sizing: border-box; outline: none; }
         button { width: 100%; padding: 16px; background: var(--amarelo); color: #000; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-transform: uppercase; margin-top: 10px; transition: 0.3s; }
-        button:disabled { background: #333; color: #666; cursor: not-allowed; }
+        .btn-outline { background: transparent; color: var(--amarelo); border: 1px solid var(--amarelo); margin-top: 15px; font-size: 0.8rem; padding: 10px; }
         .badge { background: var(--amarelo); color: #000; padding: 4px 12px; border-radius: 50px; font-size: 0.7rem; font-weight: bold; margin: 10px 0; display: inline-block; }
-        .card-info { background: #000; border: 1px dashed var(--amarelo); padding: 15px; border-radius: 10px; margin: 15px 0; text-align: center; }
+        .card-info { background: #000; border: 1px dashed var(--amarelo); padding: 15px; border-radius: 10px; margin: 15px 0; }
         .hidden { display: none; }
+        .painel-admin { background: #1a1a1a; margin-top: 20px; padding: 15px; border-radius: 10px; border: 1px solid #333; text-align: left; }
+        .turma-lista { font-size: 0.75rem; color: #fff; margin-bottom: 10px; border-left: 3px solid var(--amarelo); padding-left: 10px; }
         .hist-item { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; padding: 10px; border-bottom: 1px solid #222; }
-        .btn-cancelar { background: var(--vermelho); color: #fff; border: none; padding: 5px 10px; border-radius: 4px; font-size: 0.7rem; cursor: pointer; text-transform: uppercase; width: auto; margin-top: 0; }
+        .btn-cancel { background: var(--vermelho); color: white; width: auto; padding: 5px 10px; font-size: 0.6rem; border-radius: 4px; margin: 0; }
     </style>
 </head>
 <body>
 
 <div id="loginPage" class="container">
-    <h1 style="margin-bottom:0; text-transform: uppercase;">Prof. Stanlley</h1>
-    <p style="font-size:0.8rem; color:#888; margin-top:5px;">Vôlei de Praia | Mercúrio Praia Clube</p>
+    <h1 style="text-transform: uppercase; margin-bottom: 5px;">Prof. Stanlley</h1>
+    <p style="font-size: 0.8rem; color: #888; margin-bottom: 25px;">Mercúrio Praia Clube</p>
+    
     <input type="tel" id="telLogin" placeholder="Telefone com DDD">
     <input type="tel" id="senhaLogin" maxlength="10" placeholder="Nascimento (ex: 02071998)" oninput="mascaraData(this)">
-    <button id="btnLogin" onclick="fazerLogin()">Entrar</button>
+    
+    <button id="btnLogin" onclick="fazerLogin()">Entrar no Portal</button>
+    
+    <button class="btn-outline" onclick="window.location.href='https://forms.gle/UevvEvYWMDTLqYnN8'">
+        Novo Aluno? Criar Acesso
+    </button>
 </div>
 
 <div id="appPage" class="container hidden">
@@ -34,26 +42,33 @@
     <br><button onclick="alternarDiarista()" style="width:auto; font-size:0.6rem; padding:5px; background:#222; color:#fff; border: 1px solid #444;">Mudar para Diarista</button>
 
     <div class="card-info">
-        <span style="font-size:0.65rem; color:#888; text-transform:uppercase;">Próximo Treino</span>
-        <div id="dataTreinoTexto" style="font-size:1.2rem; font-weight:bold; margin:5px 0;">--/--/----</div>
-        <div id="statusLiberacao" style="font-size:0.7rem; font-weight:bold;">Verificando...</div>
+        <span style="font-size:0.6rem; color:#888;">PRÓXIMO TREINO</span>
+        <div id="dataTreinoTexto" style="font-size:1.2rem; font-weight:bold;">--/--/----</div>
+        <div id="statusLiberacao" style="font-size:0.7rem;">Verificando...</div>
     </div>
 
     <select id="horario" onchange="verificarRegras()">
-        <option value="18:00">18:00h</option>
-        <option value="19:00">19:00h</option>
-        <option value="20:00">20:00h</option>
+        <option value="18:00">18:00h (16 vagas)</option>
+        <option value="19:00">19:00h (16 vagas)</option>
+        <option value="20:00">20:00h (14 vagas)</option>
     </select>
     
     <button id="btnCheckin" onclick="fazerCheckin()">Confirmar Presença</button>
 
-    <h3 style="margin-top:25px; font-size:0.8rem; text-transform:uppercase; border-bottom:1px solid #333; padding-bottom:5px;">Meus Treinos</h3>
-    <div id="listaHistorico" style="max-height:150px; overflow-y:auto;"></div>
+    <div id="painelProfessor" class="painel-admin hidden">
+        <h3 style="font-size:0.8rem; text-transform:uppercase; margin-bottom:12px; color:var(--amarelo)">📊 Lista de Presença</h3>
+        <div id="listasTurmas">Carregando listas...</div>
+    </div>
+
+    <h3 style="margin-top:25px; font-size:0.8rem; text-transform:uppercase; border-bottom: 1px solid #333; padding-bottom: 5px;">Meus Treinos</h3>
+    <div id="listaHistorico"></div>
+    
+    <button class="btn-outline" style="border:none; color:#666;" onclick="location.reload()">Sair do Portal</button>
 </div>
 
 <script>
     const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbz1YWatewvqKyOnSajAXnrDZYF0jjDpj-odMyOI2NSX3F3xs8PFQcG9zTUJnM-6KiPHZQ/exec";
-    const LINK_FORMULARIO = "https://forms.gle/UevvEvYWMDTLqYnN8";
+    const LINK_FORMULARIO = "https://forms.gle/VBN19h9EzY9NCLaS6";
     let USER = null;
     let modoDiarista = false;
 
@@ -65,134 +80,104 @@
     }
 
     async function fazerLogin() {
-        const telefone = document.getElementById('telLogin').value.replace(/\D/g,'');
+        const tel = document.getElementById('telLogin').value.replace(/\D/g,'');
         const senha = document.getElementById('senhaLogin').value;
         const btn = document.getElementById('btnLogin');
-        
-        if(!telefone || !senha) return alert("Preencha todos os campos.");
-        
-        btn.disabled = true;
-        btn.innerText = "VERIFICANDO...";
-
+        if(!tel || senha.length < 10) return alert("Preencha telefone e data completa.");
+        btn.disabled = true; btn.innerText = "VERIFICANDO...";
         try {
-            const res = await fetch(URL_SCRIPT, { method:'POST', body: JSON.stringify({action:"login", telefone, senha}) });
+            const res = await fetch(URL_SCRIPT, { method:'POST', body: JSON.stringify({action:"login", telefone:tel, senha:senha}) });
             const json = await res.json();
-            
             if(json.result === "success"){
                 USER = json.data;
                 document.getElementById('loginPage').classList.add('hidden');
                 document.getElementById('appPage').classList.remove('hidden');
                 document.getElementById('nomeAluno').innerText = USER.nome;
                 document.getElementById('planoExibido').innerText = USER.plano;
-                verificarRegras(); 
-                carregarHistorico();
-            } else if(json.result === "not_found"){
-                alert(json.data); 
-                window.location.href = LINK_FORMULARIO;
+                if(USER.nome === "Stanlley Christian Cruz Ferreira") document.getElementById('painelProfessor').classList.remove('hidden');
+                verificarRegras(); carregarHistorico();
             } else { 
-                alert(json.data); 
-                btn.disabled = false;
-                btn.innerText = "Entrar";
+                alert(json.data); btn.disabled = false; btn.innerText = "Entrar no Portal";
+                if(json.result === "not_found" && confirm("Ir para matrícula agora?")) window.location.href = LINK_FORMULARIO;
             }
-        } catch(e) {
-            alert("Erro de conexão. Verifique o Script.");
-            btn.disabled = false;
-            btn.innerText = "Entrar";
-        }
+        } catch(e) { alert("Erro de conexão."); btn.disabled = false; btn.innerText = "Entrar no Portal"; }
     }
 
     function verificarRegras() {
         const agora = new Date();
         const dia = agora.getDay();
         const hora = agora.getHours();
-        const plano = modoDiarista ? "Diarista" : USER.plano;
-        
         let prox = new Date();
-        if(dia===2 || dia===4){ /* Hoje */ }
+        if(dia===2 || dia===4){ }
         else if(dia<2) prox.setDate(agora.getDate()+(2-dia));
         else if(dia<4) prox.setDate(agora.getDate()+(4-dia));
         else prox.setDate(agora.getDate()+(2+(7-dia)));
-        
-        const dataFormatada = prox.toLocaleDateString('pt-BR');
-        document.getElementById('dataTreinoTexto').innerText = dataFormatada;
+        const dataStr = prox.toLocaleDateString('pt-BR');
+        document.getElementById('dataTreinoTexto').innerText = dataStr;
 
         let liberado = false;
-        let msg = "";
-        let cor = "#FFD700";
-
-        if(plano === "Mensalista") {
+        if(USER.nome === "Stanlley Christian Cruz Ferreira") {
             liberado = true;
-            msg = "✅ INSCRIÇÃO LIBERADA";
-            cor = "#00FF00";
+            document.getElementById('statusLiberacao').innerText = "⭐ ACESSO MASTER ATIVO";
+            document.getElementById('statusLiberacao').style.color = "#00FF00";
+            carregarListaProfessor(dataStr);
         } else {
-            const diaTreino = (dia === 2 || dia === 4);
-            if(diaTreino && hora >= 12) {
-                liberado = true; 
-                msg = "✅ VAGAS ABERTAS";
-                cor = "#00FF00";
+            const plano = modoDiarista ? "Diarista" : USER.plano;
+            if(plano === "Mensalista" || ( (dia===2 || dia===4) && hora >= 12 )) {
+                liberado = true;
+                document.getElementById('statusLiberacao').innerText = "✅ VAGAS LIBERADAS";
+                document.getElementById('statusLiberacao').style.color = "#00FF00";
             } else {
-                msg = diaTreino ? "⏳ LIBERA ÀS 12:00 DE HOJE" : "⏳ LIBERA ÀS 12:00 DO DIA DO TREINO";
+                document.getElementById('statusLiberacao').innerText = "⏳ LIBERA ÀS 12:00 DO DIA DO TREINO";
+                document.getElementById('statusLiberacao').style.color = "#FFD700";
             }
         }
         document.getElementById('btnCheckin').disabled = !liberado;
-        const statusEl = document.getElementById('statusLiberacao');
-        statusEl.innerText = msg;
-        statusEl.style.color = cor;
+    }
+
+    async function carregarListaProfessor(dataFiltro) {
+        try {
+            const res = await fetch(URL_SCRIPT, { method:'POST', body: JSON.stringify({action:"getListaPresenca", dataFiltro: dataFiltro}) });
+            const json = await res.json();
+            const container = document.getElementById('listasTurmas');
+            container.innerHTML = "";
+            for (let h in json.data) {
+                let alunos = json.data[h];
+                let limite = (h === "20:00") ? 14 : 16;
+                container.innerHTML += `<div class="turma-lista"><strong>${h}h (${alunos.length}/${limite})</strong><br><span style="color:#aaa">${alunos.length > 0 ? alunos.join(", ") : "Vazio"}</span></div>`;
+            }
+        } catch(e) { }
     }
 
     async function fazerCheckin() {
         const btn = document.getElementById('btnCheckin');
         btn.disabled = true; btn.innerText = "RESERVANDO...";
-        try {
-            const res = await fetch(URL_SCRIPT, { method:'POST', body: JSON.stringify({
-                action:"checkin", nome: USER.nome, tel: USER.tel, 
-                planoCadastrado: USER.plano, planoEscolhido: modoDiarista ? "Diarista" : USER.plano, 
-                horario: document.getElementById('horario').value
-            })});
-            const json = await res.json();
-            alert(json.data);
-            if(json.result === "success") carregarHistorico();
-        } catch(e) {
-            alert("Erro ao realizar check-in.");
-        }
-        btn.disabled = false;
-        btn.innerText = "Confirmar Presença"; 
-        verificarRegras();
+        const res = await fetch(URL_SCRIPT, { method:'POST', body: JSON.stringify({
+            action:"checkin", nome: USER.nome, tel: USER.tel, 
+            planoCadastrado: USER.plano, planoEscolhido: modoDiarista ? "Diarista" : USER.plano, horario: document.getElementById('horario').value
+        })});
+        const json = await res.json();
+        alert(json.data);
+        verificarRegras(); carregarHistorico();
+        btn.disabled = false; btn.innerText = "Confirmar Presença";
     }
 
     async function cancelarPresenca(dataTreino) {
-        if (!confirm("Deseja realmente cancelar sua presença para o dia " + dataTreino + "?")) return;
-        
-        try {
-            const res = await fetch(URL_SCRIPT, { method:'POST', body: JSON.stringify({
-                action: "cancelar", 
-                tel: USER.tel, 
-                dataTreino: dataTreino
-            })});
-            const json = await res.json();
-            alert(json.data);
-            if(json.result === "success") carregarHistorico();
-        } catch(e) {
-            alert("Erro ao cancelar.");
-        }
+        if(!confirm("Cancelar treino de " + dataTreino + "?")) return;
+        const res = await fetch(URL_SCRIPT, { method:'POST', body: JSON.stringify({action: "cancelar", tel: USER.tel, dataTreino: dataTreino})});
+        const json = await res.json();
+        alert(json.data);
+        carregarHistorico(); verificarRegras();
     }
 
     async function carregarHistorico() {
-        try {
-            const res = await fetch(URL_SCRIPT, { method:'POST', body: JSON.stringify({action:"getHistory", tel:USER.tel}) });
-            const json = await res.json();
-            const lista = document.getElementById('listaHistorico');
-            lista.innerHTML = "";
-            json.data.reverse().slice(0,5).forEach(i => {
-                lista.innerHTML += `
-                    <div class="hist-item">
-                        <span>${i.data} às ${i.hora}</span>
-                        <button class="btn-cancelar" onclick="cancelarPresenca('${i.data}')">Cancelar</button>
-                    </div>`;
-            });
-        } catch(e) {
-            console.log("Erro ao carregar histórico");
-        }
+        const res = await fetch(URL_SCRIPT, { method:'POST', body: JSON.stringify({action:"getHistory", tel:USER.tel}) });
+        const json = await res.json();
+        const lista = document.getElementById('listaHistorico');
+        lista.innerHTML = "";
+        json.data.reverse().slice(0,5).forEach(i => {
+            lista.innerHTML += `<div class="hist-item"><span>${i.data} - ${i.hora}</span><button class="btn-cancel" onclick="cancelarPresenca('${i.data}')">X</button></div>`;
+        });
     }
 
     function alternarDiarista() {
