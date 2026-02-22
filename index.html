@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal - Prof Stanlley </title>
+    <title>Portal - Prof Stanlley</title>
     <style>
         :root { --amarelo: #FFD700; --preto: #000; --cinza: #111; --vermelho: #ff4d4d; }
         body { background: var(--preto); color: var(--amarelo); font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
@@ -17,123 +17,6 @@
         .hidden { display: none; }
         .painel-admin { background: #1a1a1a; margin-top: 20px; padding: 15px; border-radius: 10px; border: 1px solid #333; text-align: left; }
         .turma-lista { font-size: 0.75rem; color: #fff; margin-bottom: 12px; border-left: 3px solid var(--amarelo); padding-left: 10px; }
-        .hist-item { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; padding: 10px; border-bottom: 1px solid #222; }
-    </style>
-</head>
-<body>
-
-<div id="loginPage" class="container">
-    <h1 style="text-transform: uppercase; margin: 0;">Prof. Stanlley</h1>
-    <input type="tel" id="telLogin" placeholder="Telefone (DDD + Número)">
-    <input type="tel" id="senhaLogin" maxlength="10" placeholder="Nascimento (ex: 02/07/1998)" oninput="mascaraData(this)">
-    <button id="btnLogin" onclick="fazerLogin()">Entrar</button>
-    <button class="btn-outline" onclick="window.location.href='https://forms.gle/ECbtq3zXEC3jRzHf9'">Criar Matrícula</button>
-</div>
-
-<div id="appPage" class="container hidden">
-    <h2 id="nomeAluno" style="color:#fff;">---</h2>
-    <div id="planoExibido" class="badge">---</div>
-    <div class="card-info">
-        <span style="font-size: 0.6rem; color: #888; text-transform: uppercase;">Próximo Treino</span>
-        <div id="dataTreinoTexto" style="font-size: 1.2rem; font-weight: bold;">--/--/----</div>
-        <div id="statusLiberacao" style="font-size: 0.7rem; font-weight: bold;">Verificando...</div>
-    </div>
-    <select id="horario" onchange="verificarRegras()">
-        <option value="18:00">18:00h (16 vagas)</option>
-        <option value="19:00">19:00h (16 vagas)</option>
-        <option value="20:00">20:00h (14 vagas)</option>
-    </select>
-    <button id="btnCheckin" onclick="fazerCheckin()">Confirmar Presença</button>
-    <div id="painelProfessor" class="painel-admin hidden">
-        <h3 style="color:var(--amarelo); font-size:0.8rem;">📊 Lista de Alunos</h3>
-        <div id="listasTurmas"></div>
-    </div>
-    <div id="listaHistorico"></div>
-    <button class="btn-outline" style="border: none; color: #666;" onclick="location.reload()">Sair</button>
-</div>
-
-<script>
-    const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbz1YWatewvqKyOnSajAXnrDZYF0jjDpj-odMyOI2NSX3F3xs8PFQcG9zTUJnM-6KiPHZQ/exec";
-    let USER = null;
-
-    function mascaraData(i) {
-        let v = i.value.replace(/\D/g, '').slice(0, 8);
-        if (v.length >= 5) v = v.replace(/^(\d{2})(\d{2})(\d{0,4})/, "$1/$2/$3");
-        else if (v.length >= 3) v = v.replace(/^(\d{2})(\d{0,2})/, "$1/$2");
-        i.value = v;
-    }
-
-    async function fazerLogin() {
-        const tel = document.getElementById('telLogin').value.replace(/\D/g, '');
-        const senha = document.getElementById('senhaLogin').value;
-        const btn = document.getElementById('btnLogin');
-        if (!tel || senha.length < 10) return alert("Dados incompletos.");
-        btn.disabled = true; btn.innerText = "VERIFICANDO...";
-        try {
-            const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify({ action: "login", telefone: tel, senha: senha }) });
-            const texto = await res.text();
-            const json = JSON.parse(texto);
-            if (json.result === "success") {
-                USER = json.data;
-                document.getElementById('loginPage').classList.add('hidden');
-                document.getElementById('appPage').classList.remove('hidden');
-                document.getElementById('nomeAluno').innerText = USER.nome;
-                document.getElementById('planoExibido').innerText = USER.plano;
-                if (USER.nome === "Stanlley Christian Cruz Ferreira") document.getElementById('painelProfessor').classList.remove('hidden');
-                verificarRegras(); carregarHistorico();
-            } else { alert(json.data); btn.disabled = false; btn.innerText = "Entrar"; }
-        } catch (e) { alert("Erro de conexão."); btn.disabled = false; btn.innerText = "Entrar"; }
-    }
-
-    function verificarRegras() {
-        const prox = new Date();
-        const dia = prox.getDay();
-        if (dia < 2) prox.setDate(prox.getDate() + (2 - dia)); else if (dia < 4) prox.setDate(prox.getDate() + (4 - dia)); else prox.setDate(prox.getDate() + (2 + (7 - dia)));
-        const dataStr = prox.toLocaleDateString('pt-BR');
-        document.getElementById('dataTreinoTexto').innerText = dataStr;
-        if (USER.nome === "Stanlley Christian Cruz Ferreira") {
-            document.getElementById('statusLiberacao').innerText = "⭐ MASTER ATIVO";
-            carregarListaProfessor(dataStr);
-        }
-    }
-
-    async function carregarListaProfessor(dataF) {
-        try {
-            const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify({ action: "getListaPresenca", dataFiltro: dataF }) });
-            const texto = await res.text();
-            const json = JSON.parse(texto);
-            const container = document.getElementById('listasTurmas');
-            container.innerHTML = "";
-            for (let h in json.data) {
-                let alunos = json.data[h];
-                container.innerHTML += `<div class="turma-lista"><strong>${h}h (${alunos.length})</strong><br><span>${alunos.join(", ") || "Vazio"}</span></div>`;
-            }
-        } catch (e) { }
-    }
-
-    async function fazerCheckin() {
-        const btn = document.getElementById('btnCheckin');
-        btn.disabled = true; btn.innerText = "RESERVANDO...";
-        try {
-            const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify({ action: "checkin", nome: USER.nome, tel: USER.tel, planoCadastrado: USER.plano, horario: document.getElementById('horario').value }) });
-            const texto = await res.text();
-            const json = JSON.parse(texto);
-            alert(json.data);
-            if(json.result === "success") carregarHistorico();
-        } catch (e) { alert("Erro de rede."); }
-        btn.disabled = false; btn.innerText = "Confirmar Presença"; verificarRegras();
-    }
-
-    async function carregarHistorico() {
-        const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify({ action: "getHistory", tel: USER.tel }) });
-        const texto = await res.text();
-        const json = JSON.parse(texto);
-        const lista = document.getElementById('listaHistorico');
-        lista.innerHTML = "";
-        json.data.reverse().slice(0, 5).forEach(i => {
-            lista.innerHTML += `<div class="hist-item"><span>${i.data} - ${i.hora}</span></div>`;
-        });
-    }
-</script>
-</body>
-</html>
+        .hist-item { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; padding: 10px; border-bottom: 1px solid #222; color: #ccc; }
+        .btn-toggle { background: #222; color: #fff; font-size: 0.65rem; padding: 5px 10px; width: auto; border: 1px solid #444; margin-bottom: 10px; }
+    </style
